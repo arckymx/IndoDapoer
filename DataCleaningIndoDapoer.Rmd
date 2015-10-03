@@ -223,7 +223,7 @@ names(mymelt)
 [1]"Province", [2]"Indicator", [3]"Code", [4]"Year"  [5]"Value"
 
 
-## (2) casting the data
+## (2) Casting the data
 Using 'dcast' to reshape the data to show the following columns: Year,Province~Indicator (e.g. Year, Province, GDP, Labor, Unemployment, and so on)
 ```{r,eval=FALSE}
 # Cast
@@ -236,7 +236,7 @@ head(mycast)
 write.csv(mycast, "dapoerR.csv")
 ```
 
-## (3) casting the data (ver2)
+## (3) Casting the data (ver2)
 Using 'dcast' to reshape the data to show the following columns: Province~IndicatorYear (e.g. Jakarta, GDP 2010, GDP 2011, and so on)
 ```{r, eval=FALSE}
 # Create a new dataframe that clones subset 3
