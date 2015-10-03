@@ -18,7 +18,9 @@ names(data)
 ~~~
 
 ## Subsetting
-subsetting the data based on the following criteria selection (1) provincial scale, (2) TS 2000-2012, (3) 52 variables of choice
+subsetting the data based on the following criteria selection (1) provincial scale, (2) TS 2000-2012, (3) 52 variables of choice.
+
+Tip: Use MS-Excel 'VLOOKUP' and cell merge function '&' to simplifly the scripting process.
 ~~~
 # Subsetting for provincial data only
 subset1 <- subset(data, 
@@ -215,12 +217,15 @@ mymelt$Year <- as.numeric(sub("X","",mymelt$Year))
 ~~~
 
 ## (2) casting the data
-Using 'dcast', the data will be reshaped to show the following column structure: Year,Province~Indicator
+Using 'dcast' to reshape the data to show the following columns: Year,Province~Indicator (e.g. Year, Province, GDP, Labor, Unemployment, and so on)
 ~~~
 mycast <- dcast(mymelt,Year+Province~Indicator, value.var = "Value")
-##
+# Examine the result
+head(mycast)
+# Export the data
+write.csv(mycast, "dapoerR.csv")
 ~~~
 
-## (3) casting the data 2
-This s
+## (3) casting the data (ver2)
+Using 'dcast' to reshape the data to show the following columns: Province~Indicator
 
