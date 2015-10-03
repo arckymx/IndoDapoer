@@ -2,6 +2,10 @@
 Use the following tutorial: Intro to R Session 3.5 (Data Manipulation - World Bank Data) 
 [https://www.youtube.com/watch?v=6qmYxYtY6Rg]
 
+```{r}
+summary(cars)
+```
+
 ## Download the data
 Indonesia Database for Policy and Economic Research [http://data.worldbank.org/data-catalog/indonesia-database-for-policy-and-economic-research]
 
