@@ -1,31 +1,28 @@
-## Cleaning and Reshaping IndoDapoer (World Bank)
-Use the following tutorial: Intro to R Session 3.5 (Data Manipulation - World Bank Data) 
-[https://www.youtube.com/watch?v=6qmYxYtY6Rg]
+Cleaning and Reshaping IndoDapoer (World Bank)
+========================================================
 
-```{r}
-summary(cars)
-```
+Use the following tutorial: Intro to R Session 3.5 (Data Manipulation - World Bank Data) [https://www.youtube.com/watch?v=6qmYxYtY6Rg]
 
-## Download the data
+## Downloading data
 Indonesia Database for Policy and Economic Research [http://data.worldbank.org/data-catalog/indonesia-database-for-policy-and-economic-research]
 
 ## Prep
-Before loading the data, remove the "Country_Code" variable using excel
+Before loading the data, remove the "Country_Code" variable using Excel.
 
-~~~
+## Loading data into R
+```{r, eval=FALSE}
 # Load the data
 data <- read.csv("INDODAPOER-Data.csv")
+
 # Examine the data
 head(data)
 str(data)
 names(data)
-~~~
+```
 
 ## Subsetting
-subsetting the data based on the following criteria selection (1) provincial scale, (2) TS 2000-2012, (3) 52 variables of choice.
-
-Tip: Use MS-Excel 'VLOOKUP' and cell merge function '&' to simplifly the scripting process.
-~~~
+subsetting the data based on the following criteria selection (1) provincial scale, (2) TS 2000-2012, (3) 52 variables of choice. *Tip: Use MS-Excel 'VLOOKUP' and cell merge function '&' to simplifly the scripting process.
+```{r, eval=FALSE}
 # Subsetting for provincial data only
 subset1 <- subset(data, 
                     Country.Name=="Bali, Prop." |
@@ -119,11 +116,14 @@ subset2 <-  subset(subset1,
 
 # Further subsetting for select years (X2000-X2012)
 subset3 <- subset(subset2, select=c(Country.Name,Indicator.Name,Indicator.Code,X2000:X2012))
-~~~
+
+```
 
 ## Renaming the variables
-To keep things simple, selected indicator (variable) names have to be changed. Use the instructions from R Cookbook [http://www.cookbook-r.com/Manipulating_data/Renaming_levels_of_a_factor/] 
-~~~
+To keep things simple, selected indicator (variable) names have to be changed. Use the instructions from R Cookbook [http://www.cookbook-r.com/Manipulating_data/Renaming_levels_of_a_factor/].
+*Tip: Use MS-Excel 'VLOOKUP' and cell merge function '&' to simplifly the scripting process
+```{r,eval=FALSE}
+#Renaming variables
 levels(subset3$Indicator.Name)[levels(subset3$Indicator.Name)=="Birth attended by Skilled Health worker (in % of total birth)"] <-"Birth"
 levels(subset3$Indicator.Name)[levels(subset3$Indicator.Name)=="GDP on Agriculture Sector (in IDR Million), Constant Price"] <-"AgGDPr"
 levels(subset3$Indicator.Name)[levels(subset3$Indicator.Name)=="GDP on Agriculture Sector (in IDR Million), Current Price"] <-"AgGDPn"
@@ -176,12 +176,14 @@ levels(subset3$Indicator.Name)[levels(subset3$Indicator.Name)=="Total Population
 levels(subset3$Indicator.Name)[levels(subset3$Indicator.Name)=="Number of people in labor force"] <-"Labor"
 levels(subset3$Indicator.Name)[levels(subset3$Indicator.Name)=="Number of people unemployed"] <-"Unemp"
 levels(subset3$Indicator.Name)[levels(subset3$Indicator.Name)=="Number of people employed"] <-"Empl"
-~~~
+```
 
 ## Current data structure
-Currently, the data should have the following column names
-~~~
-[1] "Country.Name"  
+Currently, the data frame should have the following column names
+```{r, eval=FALSE}
+names(subset3)
+```
+ [1] "Country.Name"  
  [2] "Indicator.Name"
  [3] "Indicator.Code"
  [4] "X2000"         
@@ -197,11 +199,11 @@ Currently, the data should have the following column names
 [14] "X2010"         
 [15] "X2011"         
 [16] "X2012" 
-~~~
+
 
 ## (1) Melting data
-The next step is to melt the data, to reflect the following column: "Province"  "Indicator" "Code" "Year" "Value" 
-~~~
+The next step is to melt the data, in order to get the following columns: [1]"Province", [2]"Indicator", [3]"Code", [4]"Year"  [5]"Value"
+```{r, eval=FALSE}
 # Use package "Reshape2"
 library(reshape2)
 
@@ -213,23 +215,46 @@ names(mymelt)[1:5] <- c("Province", "Indicator", "Code", "Year", "Value")
 
 # Removing X (from the year variable i.e. X2000, X2001, Xn,...)
 mymelt$Year <- as.numeric(sub("X","",mymelt$Year))
+```
+By now the data should show the following column names, when using the **names(mymelt)** function:
+```{r, eval=FALSE}
+names(mymelt)
+```
+[1]"Province", [2]"Indicator", [3]"Code", [4]"Year"  [5]"Value"
 
-# by now the data should show the following column names
-[1] "Province"  "Indicator"
-[3] "Code"      "Year"     
-[5] "Value"    
-~~~
 
 ## (2) casting the data
 Using 'dcast' to reshape the data to show the following columns: Year,Province~Indicator (e.g. Year, Province, GDP, Labor, Unemployment, and so on)
-~~~
+```{r,eval=FALSE}
+# Cast
 mycast <- dcast(mymelt,Year+Province~Indicator, value.var = "Value")
+
 # Examine the result
 head(mycast)
+
 # Export the data
 write.csv(mycast, "dapoerR.csv")
-~~~
+```
 
 ## (3) casting the data (ver2)
-Using 'dcast' to reshape the data to show the following columns: Province~Indicator
+Using 'dcast' to reshape the data to show the following columns: Province~IndicatorYear (e.g. Jakarta, GDP 2010, GDP 2011, and so on)
+```{r, eval=FALSE}
+# Create a new dataframe that clones subset 3
+subset4 <- data.frame(mymelt)
+
+# Create a  column on the clone that combines "Indicator" and "Year"
+subset4$Indicator <- paste(subset4$Indicator, subset4$Year, sep="")
+
+# Examine the result
+head(subset4)
+
+# Cast the dataframe to reflect Province~Indicator(+Year)
+mycast2 <- dcast(subset4,Province~Indicator)
+
+Examine the result
+head(mycast2)
+
+# Export the data
+write.csv(mycast2, "dapoerSPSS.csv")
+```
 
